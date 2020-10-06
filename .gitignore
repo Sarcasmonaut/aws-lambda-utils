@@ -1,0 +1,11 @@
+# package directories
+node_modules
+jspm_packages
+
+# Webpack directories
+.webpack
+
+# Jest output
+report.xml
+coverage
+lib/
