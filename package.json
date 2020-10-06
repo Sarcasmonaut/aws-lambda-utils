@@ -16,7 +16,7 @@
     "version": "npm run format && git add -A src",
     "postversion": "git push && git push --tags",
     "prepack": "npm run build",
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "test:coverage": "npm test --coverage",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "npm lint --fix",
