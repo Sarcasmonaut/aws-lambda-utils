@@ -17,7 +17,7 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
       - uses: bahmutov/npm-install@v1
-      - run: yarn run lint
+      - run: yarn lint
   unittests:
     runs-on: ubuntu-latest
     strategy:
@@ -28,5 +28,5 @@ jobs:
       - uses: actions/setup-node@v2-beta
         with:
           node-version: ${{ matrix.node }}
-    - uses: bahmutov/npm-install@v1
-    - run: yarn test
+      - uses: bahmutov/npm-install@v1
+      - run: yarn test
