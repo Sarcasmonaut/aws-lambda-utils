@@ -34,11 +34,11 @@
     "eslint": "^7.3.1",
     "eslint-config-prettier": "^6.11.0",
     "fork-ts-checker-webpack-plugin": "^3.0.1",
-    "jest": "^26.1.0",
-    "jest-jenkins-reporter": "^1.0.2",
+    "jest": "^26.5.2",
     "prettier": "^2.0.5",
     "ts-jest": "^26.1.1",
     "ts-loader": "^5.3.3",
     "typescript": "^3.9.6"
-  }
+  },
+  "dependencies": {}
 }
