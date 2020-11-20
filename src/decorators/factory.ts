@@ -1,4 +1,14 @@
 import 'reflect-metadata';
+import * as _ from "lodash";
+import {
+  AfterHook,
+  AfterHookParams,
+  BeforeHook,
+  ErrorHook,
+  ErrorHookParams,
+  FinallyHook,
+  HookParams
+} from '../hooks';
 
 export interface DecoratorFactoryOpts {
   before?: BeforeHook[]
@@ -9,53 +19,11 @@ export interface DecoratorFactoryOpts {
 
 export type HookFunction = (params: HookParams) => void | Promise<void>
 
-export interface AfterHook extends HookFunction {
-  (params: AfterHookParams): void | Promise<void>
-}
-
-export interface ErrorHook extends HookFunction {
-  (params: ErrorHookParams): void | Promise<void>
-}
-
-export interface FinallyHook extends HookFunction {
-  (params: FinallyHookParams): void | Promise<void>
-}
-
-export interface BeforeHook extends HookFunction {
-  (params: BeforeHookParams): void | Promise<void>
-
-  // (params: BeforeHookParams):
-}
-
-export interface HookParams {
-  decoratedFunction: any,
-  args: any
-  result?: any
-  error?: Error
-}
-
-export interface FinallyHookParams extends HookParams {
-  result?: any
-  error?: Error
-}
-
-export interface BeforeHookParams extends HookParams {
-}
-
-export interface AfterHookParams extends HookParams {
-  result: any
-}
-
-export interface ErrorHookParams extends HookParams {
-  result?: any
-  error: Error
-}
-
 type DecoratorStep = keyof DecoratorFactoryOpts | 'before' | 'onSuccess' | 'onError' | 'finally'
 export const DecoratorFactory = (name: string, opts: DecoratorFactoryOpts): any => {
 
   function generateDescriptor(descriptor: PropertyDescriptor): PropertyDescriptor {
-    let originalMethod: Function = descriptor.value;
+    const originalMethod: Function = descriptor.value;
     descriptor.value = async function (...args: unknown[]) {
       async function executeStep(stepName: DecoratorStep, params: HookParams) {
         let hooks: HookFunction[] = opts[stepName] || [];
@@ -65,10 +33,10 @@ export const DecoratorFactory = (name: string, opts: DecoratorFactoryOpts): any 
       }
 
       let result: any;
-      let hookParams: HookParams = {decoratedFunction: originalMethod, args: args};
+      let hookParams: HookParams = {decoratedFunction: originalMethod, args: _.cloneDeep(args)};
       try {
         await executeStep('before', hookParams);
-        result = await Promise.resolve(originalMethod.apply(this, args));
+        result = await Promise.resolve(originalMethod.apply(this, hookParams.args));
         (hookParams as AfterHookParams).result = result;
         await executeStep('onSuccess', hookParams);
       } catch (error) {

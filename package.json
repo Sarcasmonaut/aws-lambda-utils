@@ -1,6 +1,6 @@
 {
   "name": "aws-lambda-utils",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Decorators and utilities for the average AWS Lambda development",
   "repository": "git@github.com:Sarcasmonaut/aws-lambda-utils.git",
   "author": "Sarcasmonaut <patrik.kessler@outlook.de>",
@@ -10,7 +10,7 @@
   "types": "lib/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "prepare": "npm run build",
+    "prepare": "rimraf lib && npm run build",
     "prepublishOnly": "npm test && npm lint",
     "preversion": "npm lint",
     "version": "npm run format && git add -A src",
