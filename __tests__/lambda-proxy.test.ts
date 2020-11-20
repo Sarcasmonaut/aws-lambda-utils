@@ -16,7 +16,7 @@ describe('LambdaProxyDecorator tests', async () => {
   });
 
   test("should inject statusCode 500 on error", async () => {
-    let expectedMessage = 'error message';
+    const expectedMessage = 'error message';
     const res = await DecoratedClass.fail({
       body: JSON.stringify({ message: expectedMessage }),
       headers: {
@@ -36,7 +36,7 @@ describe('LambdaProxyDecorator tests', async () => {
   });
 
   test("should automatically JSON.stringify response if not already done", async () => {
-    let obj: Record<string, any> = {'my': 'obj'};
+    const obj: Record<string, any> = {'my': 'obj'};
     const res = await DecoratedClass.jsonifiedResponse({
       body: JSON.stringify(obj),
       pathParameters: {},
@@ -46,7 +46,7 @@ describe('LambdaProxyDecorator tests', async () => {
   });
 
   test("should automatically parse json body if header is application/json", async () => {
-    let obj: Record<string, any> = {'my': 'obj'};
+    const obj: Record<string, any> = {'my': 'obj'};
     const res = await DecoratedClass.checkJsonParse({
       body: JSON.stringify(obj),
       httpMethod: 'POST',

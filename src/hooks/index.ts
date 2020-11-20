@@ -28,8 +28,7 @@ export interface FinallyHookParams extends HookParams {
   error?: Error
 }
 
-export interface BeforeHookParams extends HookParams {
-}
+export type BeforeHookParams = HookParams
 
 export interface AfterHookParams extends HookParams {
   result: any

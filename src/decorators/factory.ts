@@ -26,14 +26,14 @@ export const DecoratorFactory = (name: string, opts: DecoratorFactoryOpts): any 
     const originalMethod: Function = descriptor.value;
     descriptor.value = async function (...args: unknown[]) {
       async function executeStep(stepName: DecoratorStep, params: HookParams) {
-        let hooks: HookFunction[] = opts[stepName] || [];
+        const hooks: HookFunction[] = opts[stepName] || [];
         for (const hook of hooks) {
           await hook(params);
         }
       }
 
       let result: any;
-      let hookParams: HookParams = {decoratedFunction: originalMethod, args: _.cloneDeep(args)};
+      const hookParams: HookParams = {decoratedFunction: originalMethod, args: _.cloneDeep(args)};
       try {
         await executeStep('before', hookParams);
         result = await Promise.resolve(originalMethod.apply(this, hookParams.args));
