@@ -56,5 +56,19 @@ describe('LambdaProxyDecorator tests', async () => {
     }, {});
     expect(res).toHaveProperty('body', JSON.stringify(obj));
   });
+
+  test("should transform into provided class", async (done) => {
+    const obj: Record<string, any> = {'name': 'patrik', 'notExposed': 'heo'};
+    const res = await DecoratedClass.parseClass({
+      body: JSON.stringify(obj),
+      httpMethod: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      pathParameters: {},
+      queryStringParameters: {}
+    })
+    console.dir(res)
+    done()
+
+  })
 });
 

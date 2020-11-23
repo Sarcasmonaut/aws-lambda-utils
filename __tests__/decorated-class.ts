@@ -1,5 +1,15 @@
 import {LambdaProxy} from '../src/decorators/lambda';
 import {APIGatewayEventRequestContext, APIGatewayProxyEvent, APIGatewayProxyResult} from 'aws-lambda';
+import {Expose} from 'class-transformer';
+import {MinLength} from 'class-validator';
+
+class SomeDto {
+  @Expose()
+  @MinLength(15)
+  name: string | undefined;
+  notExposed: string | undefined;
+}
+
 
 @LambdaProxy()
 export class DecoratedClass {
@@ -9,7 +19,7 @@ export class DecoratedClass {
   }
 
   public static async fail(event: any, _context: Partial<APIGatewayEventRequestContext>): Promise<APIGatewayProxyResult> {
-    const message = event.body?.message
+    const message = event.body?.message;
     throw new Error(message);
   }
 
@@ -30,6 +40,13 @@ export class DecoratedClass {
     body: JSON.stringify({'some': 'value'})
   }, _context = {}) {
     return JSON.parse(event.body);
+  }
+  @LambdaProxy({
+    body: SomeDto
+  })
+  public static async parseClass(event: any) {
+    const parsed = event.body
+    return parsed
   }
 
   static async checkJsonParse(event: Partial<APIGatewayProxyEvent>, _context: {}) {
