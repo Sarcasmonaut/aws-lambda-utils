@@ -17,15 +17,27 @@ export interface LambdaProxyHookParams extends HookParams {
   error?: Error
 }
 
+export type LambdaProxyUserSource = 'cognito' | 'principalId'
+
 export interface LambdaProxyOpts {
   error?: number
   success?: number
   json?: boolean
+  userSource?: LambdaProxyUserSource
 }
 
 export function LambdaProxy(proxyOpts: LambdaProxyOpts = {}) {
   const opts = {json: true, ...proxyOpts};
-
+  const extractUser: BeforeHook = (params: LambdaProxyHookParams) => {
+    const event = params.args[0] || {};
+    let user;
+    if (opts.userSource === 'cognito') {
+      user = event.requestContext?.authorizer?.claims?.sub;
+    } else if (opts.userSource === 'principalId') {
+      user = event.requestContext?.authorizer?.principalId;
+    }
+    (event as any).user = user;
+  };
   const injectCors: FinallyHook = (params: LambdaProxyHookParams) => {
     const corsDefaultHeaders = {
       "Access-Control-Allow-Origin": "*",
@@ -60,7 +72,7 @@ export function LambdaProxy(proxyOpts: LambdaProxyOpts = {}) {
   };
 
   return DecoratorFactory('LambdaProxy', {
-    before: [parseRequestBody],
+    before: [extractUser, parseRequestBody],
     onError: [transformError],
     onSuccess: [],
     finally: [transformResponseBody, setStatus, injectCors]
