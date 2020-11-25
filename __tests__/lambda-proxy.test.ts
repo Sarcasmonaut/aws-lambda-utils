@@ -1,4 +1,5 @@
 import {DecoratedClass} from './decorated-class';
+import {BadRequestError} from '../src/errors';
 
 describe('LambdaProxyDecorator tests', async () => {
   test("should inject cors", async () => {
@@ -57,7 +58,7 @@ describe('LambdaProxyDecorator tests', async () => {
     expect(res).toHaveProperty('body', JSON.stringify(obj));
   });
 
-  test("should transform into provided class", async (done) => {
+  test("should transform into provided class", async () => {
     const obj: Record<string, any> = {'name': 'patrik', 'notExposed': 'heo'};
     const res = await DecoratedClass.parseClass({
       body: JSON.stringify(obj),
@@ -66,8 +67,23 @@ describe('LambdaProxyDecorator tests', async () => {
       pathParameters: {},
       queryStringParameters: {}
     })
-    console.dir(res)
-    done()
+    const body = JSON.parse(res.body)
+    expect(body).toHaveProperty('name', obj.name)
+    expect(body).not.toHaveProperty('notExposed')
+  })
+
+  test("should fail with statusCode 400 on validation error", async () => {
+    const obj: Record<string, any> = { minFive: 3};
+    const res = await DecoratedClass.parseClass({
+      body: JSON.stringify(obj),
+      httpMethod: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      pathParameters: {},
+      queryStringParameters: {}
+    })
+    expect(res.statusCode).toEqual(400)
+    const body = JSON.parse(res.body)
+    expect(body).toHaveProperty('error', new BadRequestError().name)
 
   })
 });

@@ -1,12 +1,17 @@
 import {LambdaProxy} from '../src/decorators/lambda';
 import {APIGatewayEventRequestContext, APIGatewayProxyEvent, APIGatewayProxyResult} from 'aws-lambda';
 import {Expose} from 'class-transformer';
-import {MinLength} from 'class-validator';
+import {IsOptional, IsString, Min,} from 'class-validator';
 
 class SomeDto {
   @Expose()
-  @MinLength(15)
+  @IsString()
   name: string | undefined;
+
+  @Expose()
+  @IsOptional()
+  @Min(5)
+  minFive?: number;
   notExposed: string | undefined;
 }
 
@@ -41,12 +46,13 @@ export class DecoratedClass {
   }, _context = {}) {
     return JSON.parse(event.body);
   }
+
   @LambdaProxy({
     body: SomeDto
   })
   public static async parseClass(event: any) {
-    const parsed = event.body
-    return parsed
+    const parsed = event.body;
+    return parsed;
   }
 
   static async checkJsonParse(event: Partial<APIGatewayProxyEvent>, _context: {}) {
