@@ -21,9 +21,12 @@ export interface LambdaProxyHookParams extends HookParams {
 }
 
 export interface LambdaProxyBodyParsingOptions {
-  validate: boolean
+  /// `true` will also call classValidator.validateOrReject. Supports only classValidator decorators.
+  validate?: boolean
+  /// the class in which the body shall be tried to be parsed into
   type: ClassType<unknown>
-  strict: boolean
+  /// `true` will filter out all values that aren't decorated with @Expose
+  strict?: boolean
 }
 
 export type LambdaProxyUserSource = 'cognito' | 'principalId'
