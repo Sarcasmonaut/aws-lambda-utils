@@ -16,7 +16,7 @@ class SomeDto {
 }
 
 
-@LambdaProxy()
+@LambdaProxy({ success: 200, json: true })
 export class DecoratedClass {
   @LambdaProxy()
   public static async test(_event: Partial<APIGatewayProxyEvent>, _context: Partial<APIGatewayEventRequestContext>) {
@@ -48,7 +48,7 @@ export class DecoratedClass {
   }
 
   @LambdaProxy({
-    body: SomeDto
+    body: SomeDto, success: 201
   })
   public static async parseClass(event: any) {
     const parsed = event.body;

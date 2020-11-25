@@ -18,6 +18,7 @@ export interface LambdaProxyHookParams extends HookParams {
   args: [APIGatewayProxyEvent, APIGatewayEventRequestContext]
   result?: Partial<APIGatewayProxyResult> | any
   error?: Error
+  userOpts: LambdaProxyOpts
 }
 
 export interface LambdaProxyBodyParsingOptions {
@@ -39,10 +40,10 @@ export interface LambdaProxyOpts {
   userSource?: LambdaProxyUserSource
   body?: LambdaProxyBodyParsingOptions | ClassType<unknown>
 }
-
+let counter = 0
 export function LambdaProxy(proxyOpts: LambdaProxyOpts = {}) {
-  const opts = {json: true, ...proxyOpts};
   const extractUser: BeforeHook = (params: LambdaProxyHookParams) => {
+    const opts = params.userOpts
     const event = params.args[0] || {};
     let user;
     if (opts.userSource === 'cognito') {
@@ -55,12 +56,14 @@ export function LambdaProxy(proxyOpts: LambdaProxyOpts = {}) {
   const injectCors: FinallyHook = (params: LambdaProxyHookParams) => {
     const corsDefaultHeaders = {
       "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Credentials": true
+      "Access-Control-Allow-Credentials": true,
+      "counter": counter++
     };
     params.result.headers = {...corsDefaultHeaders, ...params.result.headers};
   };
 
   const parseAndValidateRequestBody: BeforeHook = async (params: LambdaProxyHookParams) => {
+    const opts = params.userOpts
     let body = params.args[0].body as any;
     const parseOpts: LambdaProxyBodyParsingOptions = (opts.body as LambdaProxyBodyParsingOptions) || {
       strict: false,
@@ -81,6 +84,7 @@ export function LambdaProxy(proxyOpts: LambdaProxyOpts = {}) {
   };
 
   const parseRequestBody: BeforeHook = (params: LambdaProxyHookParams) => {
+    const opts = params.userOpts
     const event = params.args[0] || {};
     const headers = event.headers || {};
     if (['post', 'put', 'patch'].includes(event.httpMethod?.toLowerCase()) && (headers['Content-Type'] === 'application/json' || opts.json)) {
@@ -95,7 +99,7 @@ export function LambdaProxy(proxyOpts: LambdaProxyOpts = {}) {
   };
 
   function getErrorStatus(params: FinallyHookParams) {
-    const presetCode = opts.error || (params.error as any).statusCode;
+    const presetCode = params.userOpts.error || (params.error as any).statusCode;
     if (!presetCode) {
       if (params.error instanceof ValidationError) {
         return 400;
@@ -106,11 +110,10 @@ export function LambdaProxy(proxyOpts: LambdaProxyOpts = {}) {
 
   const setStatus: FinallyHook = (params: FinallyHookParams) => {
     params.result = params.result || {};
-    params.result.statusCode = params.error ? getErrorStatus(params) : params.result.statusCode || opts.success || 200;
+    params.result.statusCode = params.error ? getErrorStatus(params) : params.result.statusCode || params.userOpts.success || 200;
   };
 
   const transformError: ErrorHook = (params: LambdaProxyHookParams) => {
-
     if (typeof params.error === 'string') {
       params.result = {
         body: {'error': 'InternalServerError', message: params.error}
@@ -130,5 +133,5 @@ export function LambdaProxy(proxyOpts: LambdaProxyOpts = {}) {
     onError: [transformError],
     onSuccess: [],
     finally: [transformResponseBody, setStatus, injectCors]
-  });
+  }, { json:true, ...proxyOpts});
 };

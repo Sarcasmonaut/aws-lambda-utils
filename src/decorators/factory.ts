@@ -1,16 +1,8 @@
 import 'reflect-metadata';
 import * as _ from "lodash";
-import {
-  AfterHook,
-  AfterHookParams,
-  BeforeHook,
-  ErrorHook,
-  ErrorHookParams,
-  FinallyHook,
-  HookParams
-} from '../hooks';
+import {AfterHook, AfterHookParams, BeforeHook, ErrorHook, ErrorHookParams, FinallyHook, HookParams} from '../hooks';
 
-export interface DecoratorFactoryOpts {
+export interface DecoratorHooks {
   before?: BeforeHook[]
   onSuccess?: AfterHook[]
   onError?: ErrorHook[]
@@ -19,21 +11,22 @@ export interface DecoratorFactoryOpts {
 
 export type HookFunction = (params: HookParams) => void | Promise<void>
 
-type DecoratorStep = keyof DecoratorFactoryOpts | 'before' | 'onSuccess' | 'onError' | 'finally'
-export const DecoratorFactory = (name: string, opts: DecoratorFactoryOpts): any => {
+type DecoratorStep = keyof DecoratorHooks | 'before' | 'onSuccess' | 'onError' | 'finally'
+export const DecoratorFactory = (name: string, hooks: DecoratorHooks, userOpts: any = {}): any => {
 
-  function generateDescriptor(descriptor: PropertyDescriptor): PropertyDescriptor {
+  function generateDescriptor(descriptor: PropertyDescriptor, descriptorTarget: any, targetKey: string): PropertyDescriptor {
     const originalMethod: Function = descriptor.value;
     descriptor.value = async function (...args: unknown[]) {
       async function executeStep(stepName: DecoratorStep, params: HookParams) {
-        const hooks: HookFunction[] = opts[stepName] || [];
-        for (const hook of hooks) {
+        const stepHooks: HookFunction[] = hooks[stepName] || [];
+        for (const hook of stepHooks) {
           await hook(params);
         }
       }
 
       let result: any;
-      const hookParams: HookParams = {decoratedFunction: originalMethod, args: _.cloneDeep(args)};
+      const opts = Reflect.getMetadata(`${name}.${String(targetKey)}`, descriptorTarget);
+      const hookParams: HookParams = {decoratedFunction: originalMethod, args: _.cloneDeep(args), userOpts: opts};
       try {
         await executeStep('before', hookParams);
         result = await Promise.resolve(originalMethod.apply(this, hookParams.args));
@@ -58,7 +51,12 @@ export const DecoratorFactory = (name: string, opts: DecoratorFactoryOpts): any 
     for (const propertyName of instanceKeys.filter(
       (prop) => prop !== "constructor"
     )) {
-      if (Reflect.getMetadata(`${name}.${String(propertyName)}`, descriptorTarget)) continue;
+      const metadata = Reflect.getMetadata(`${name}.${String(propertyName)}`, descriptorTarget);
+      if (metadata) {
+        Reflect.defineMetadata(`${name}.${String(propertyName)}`, {...userOpts, ...metadata}, descriptorTarget);
+        continue;
+      }
+      Reflect.defineMetadata(`${name}.${String(propertyName)}`, userOpts, descriptorTarget);
       const desc = Object.getOwnPropertyDescriptor(
         descriptorTarget,
         propertyName
@@ -67,7 +65,7 @@ export const DecoratorFactory = (name: string, opts: DecoratorFactoryOpts): any 
       Object.defineProperty(
         descriptorTarget,
         propertyName,
-        decorateMethod(desc)
+        decorateMethod(desc, descriptorTarget, propertyName as string)
       );
     }
   }
@@ -98,8 +96,8 @@ export const DecoratorFactory = (name: string, opts: DecoratorFactoryOpts): any 
     decorateStaticProperties(target, propertyKey);
   }
 
-  function decorateMethod(descriptor: PropertyDescriptor) {
-    return generateDescriptor(descriptor);
+  function decorateMethod(descriptor: PropertyDescriptor, descriptorTarget: any, targetKey: any) {
+    return generateDescriptor(descriptor, descriptorTarget, targetKey);
   }
 
   return function (
@@ -112,8 +110,8 @@ export const DecoratorFactory = (name: string, opts: DecoratorFactoryOpts): any 
     if (descriptor && propertyKey) {
       decoratedOpts = Reflect.getMetadata(`${name}.${String(propertyKey)}`, target);
       if (!decoratedOpts) {
-        Reflect.defineMetadata(`${name}.${String(propertyKey)}`, opts, target);
-        decorateMethod(descriptor);
+        Reflect.defineMetadata(`${name}.${String(propertyKey)}`, userOpts, target);
+        decorateMethod(descriptor, target, propertyKey);
       }
       return;
     }
@@ -122,7 +120,7 @@ export const DecoratorFactory = (name: string, opts: DecoratorFactoryOpts): any 
     if (decoratedOpts) {
       return;
     } else {
-      Reflect.defineMetadata(name, opts, target);
+      Reflect.defineMetadata(name, userOpts, target);
       decorateClass(target, propertyKey);
     }
 

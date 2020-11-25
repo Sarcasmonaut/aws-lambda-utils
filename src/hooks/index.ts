@@ -21,6 +21,7 @@ export interface HookParams {
   args: any
   result?: any
   error?: Error
+  userOpts: any
 }
 
 export interface FinallyHookParams extends HookParams {
