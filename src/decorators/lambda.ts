@@ -46,10 +46,14 @@ export function LambdaProxy(proxyOpts: LambdaProxyOpts = {}) {
     const opts = params.userOpts
     const event = params.args[0] || {};
     let user;
+
     if (opts.userSource === 'cognito') {
       user = event.requestContext?.authorizer?.claims?.sub;
     } else if (opts.userSource === 'principalId') {
       user = event.requestContext?.authorizer?.principalId;
+    }
+    if (!user && process.env.IS_OFFLINE) {
+      user = 'OFFLINE_USER'
     }
     (event as any).user = user;
   };
