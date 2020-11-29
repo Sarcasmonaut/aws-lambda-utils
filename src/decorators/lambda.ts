@@ -40,7 +40,7 @@ export interface LambdaProxyOpts {
   userSource?: LambdaProxyUserSource
   body?: LambdaProxyBodyParsingOptions | ClassType<unknown>
 }
-let counter = 0
+
 export function LambdaProxy(proxyOpts: LambdaProxyOpts = {}) {
   const extractUser: BeforeHook = (params: LambdaProxyHookParams) => {
     const opts = params.userOpts
@@ -56,8 +56,7 @@ export function LambdaProxy(proxyOpts: LambdaProxyOpts = {}) {
   const injectCors: FinallyHook = (params: LambdaProxyHookParams) => {
     const corsDefaultHeaders = {
       "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Credentials": true,
-      "counter": counter++
+      "Access-Control-Allow-Credentials": true
     };
     params.result.headers = {...corsDefaultHeaders, ...params.result.headers};
   };
@@ -101,7 +100,9 @@ export function LambdaProxy(proxyOpts: LambdaProxyOpts = {}) {
   function getErrorStatus(params: FinallyHookParams) {
     const presetCode = params.userOpts.error || (params.error as any).statusCode;
     if (!presetCode) {
-      if (params.error instanceof ValidationError) {
+      // todo: gotta consider an option to inject some kind of error mapping to be able to
+      // map mongoose errors for example
+      if (params.error instanceof ValidationError || params.error?.constructor.name.includes('Validation')) {
         return 400;
       }
     }
