@@ -34,7 +34,7 @@ export const DecoratorFactory = (name: string, hooks: DecoratorHooks, userOpts: 
         await executeStep('onSuccess', hookParams);
       } catch (error) {
         (hookParams as ErrorHookParams).error = error;
-        if (!opts.onError || opts.onError.length <= 0) {
+        if (!hooks.onError || hooks.onError.length <= 0) {
           throw error
         }
         await executeStep('onError', hookParams);
