@@ -6,8 +6,7 @@ describe('LambdaProxyDecorator tests', async () => {
     const res = await DecoratedClass.test({}, {});
     expect(res).toHaveProperty('headers', {
       "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Credentials": true,
-      "counter": 0
+      "Access-Control-Allow-Credentials": true
     });
   });
 

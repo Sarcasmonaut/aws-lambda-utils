@@ -8,7 +8,7 @@ import {
 } from 'aws-lambda';
 import {BeforeHook, ErrorHook, FinallyHook, FinallyHookParams, HookParams} from '../hooks';
 import {BadRequestError} from '../errors';
-import {plainToClass} from 'class-transformer';
+import {classToPlain, plainToClass} from 'class-transformer';
 import {ClassType} from 'class-transformer/ClassTransformer';
 
 import {validateOrReject, ValidationError} from 'class-validator';
@@ -39,6 +39,7 @@ export interface LambdaProxyOpts {
   json?: boolean
   userSource?: LambdaProxyUserSource
   body?: LambdaProxyBodyParsingOptions | ClassType<unknown>
+  returns?: ClassType<unknown>
 }
 
 export function LambdaProxy(proxyOpts: LambdaProxyOpts = {}) {
@@ -97,8 +98,11 @@ export function LambdaProxy(proxyOpts: LambdaProxyOpts = {}) {
 
   const transformResponseBody: FinallyHook = (params: LambdaProxyHookParams) => {
     params.result = params.result || {};
-    const body = params.result?.body;
-    params.result = {body: JSON.stringify(body || params.result)};
+    let body = params.result?.body || params.result;
+    if (proxyOpts.returns) {
+      body = classToPlain(plainToClass(proxyOpts.returns, body, {strategy: 'excludeAll'}));
+    }
+    params.result = {body: JSON.stringify(body)};
   };
 
   function getErrorStatus(params: FinallyHookParams) {
