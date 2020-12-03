@@ -6,7 +6,7 @@ import {
   APIGatewayProxyHandlerV2,
   APIGatewayProxyResult
 } from 'aws-lambda';
-import {BeforeHook, ErrorHook, FinallyHook, FinallyHookParams, HookParams} from '../hooks';
+import {AfterHook, BeforeHook, ErrorHook, FinallyHook, FinallyHookParams, HookParams} from '../hooks';
 import {BadRequestError} from '../errors';
 import {classToPlain, plainToClass} from 'class-transformer';
 import {ClassType} from 'class-transformer/ClassTransformer';
@@ -44,7 +44,7 @@ export interface LambdaProxyOpts {
 
 export function LambdaProxy(proxyOpts: LambdaProxyOpts = {}) {
   const extractUser: BeforeHook = (params: LambdaProxyHookParams) => {
-    const opts = params.userOpts
+    const opts = params.userOpts;
     const event = params.args[0] || {};
     let user;
 
@@ -54,7 +54,7 @@ export function LambdaProxy(proxyOpts: LambdaProxyOpts = {}) {
       user = event.requestContext?.authorizer?.principalId;
     }
     if (!user && process.env.IS_OFFLINE) {
-      user = 'OFFLINE_USER'
+      user = 'OFFLINE_USER';
     }
     (event as any).user = user;
   };
@@ -67,7 +67,7 @@ export function LambdaProxy(proxyOpts: LambdaProxyOpts = {}) {
   };
 
   const parseAndValidateRequestBody: BeforeHook = async (params: LambdaProxyHookParams) => {
-    const opts = params.userOpts
+    const opts = params.userOpts;
     let body = params.args[0].body as any;
     const parseOpts: LambdaProxyBodyParsingOptions = (opts.body as LambdaProxyBodyParsingOptions) || {
       strict: false,
@@ -88,7 +88,7 @@ export function LambdaProxy(proxyOpts: LambdaProxyOpts = {}) {
   };
 
   const parseRequestBody: BeforeHook = (params: LambdaProxyHookParams) => {
-    const opts = params.userOpts
+    const opts = params.userOpts;
     const event = params.args[0] || {};
     const headers = event.headers || {};
     if (['post', 'put', 'patch'].includes(event.httpMethod?.toLowerCase()) && (headers['Content-Type'] === 'application/json' || opts.json)) {
@@ -96,12 +96,18 @@ export function LambdaProxy(proxyOpts: LambdaProxyOpts = {}) {
     }
   };
 
+  const transformResult: AfterHook = (params: LambdaProxyHookParams) => {
+    if (proxyOpts.returns) {
+      params.result = classToPlain(plainToClass(proxyOpts.returns, params.result, {
+        strategy: 'excludeAll',
+        enableImplicitConversion: true
+      }));
+    }
+  };
+
   const transformResponseBody: FinallyHook = (params: LambdaProxyHookParams) => {
     params.result = params.result || {};
     let body = params.result?.body || params.result;
-    if (proxyOpts.returns) {
-      body = classToPlain(plainToClass(proxyOpts.returns, body, {strategy: 'excludeAll'}));
-    }
     params.result = {body: JSON.stringify(body)};
   };
 
@@ -133,14 +139,14 @@ export function LambdaProxy(proxyOpts: LambdaProxyOpts = {}) {
           error: params.error!.name || params.error!.constructor.name,
           message: params.error!.message || params.error
         }
-      }
+      };
     }
   };
 
   return DecoratorFactory('LambdaProxy', {
     before: [extractUser, parseRequestBody, parseAndValidateRequestBody],
     onError: [transformError],
-    onSuccess: [],
+    onSuccess: [transformResult],
     finally: [transformResponseBody, setStatus, injectCors]
-  }, { json:true, ...proxyOpts});
+  }, {json: true, ...proxyOpts});
 };
