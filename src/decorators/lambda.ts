@@ -53,8 +53,8 @@ export function LambdaProxy(proxyOpts: LambdaProxyOpts = {}) {
     } else if (opts.userSource === 'principalId') {
       user = event.requestContext?.authorizer?.principalId;
     }
-    if (!user && process.env.IS_OFFLINE) {
-      user = 'OFFLINE_USER';
+    if (!user && (process.env.IS_OFFLINE || process.env.NODE_ENV?.toLowerCase()==='test')) {
+      user = 'LOCAL_USER';
     }
     (event as any).user = user;
   };
