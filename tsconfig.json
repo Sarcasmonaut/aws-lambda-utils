@@ -17,7 +17,7 @@
     "node_modules/**/*",
     ".webpack/**/*",
     ".vscode/**/*",
-    "__tests__"
+    "__tests__/**"
   ],
   "files": ["src/index.ts"]
 }
