@@ -18,8 +18,8 @@ export interface ParseBodyOpts {
 
 }
 
-export class BodyParser {
-  public static async parseRequestBody(params: LambdaProxyHookParams) {
+class BodyParser {
+  public static async parseRequestBody(params: LambdaProxyHookParams): Promise<void> {
     const opts = this.prepareOpts(params.userOpts.body);
     const event = params.args[0];
     if (opts.parse === false || !this.validateEvent(event)) {
@@ -29,6 +29,7 @@ export class BodyParser {
     body = this.transformToTarget(body, opts);
     await this.validateBody(body, opts);
     event.body = body;
+    return Promise.resolve();
   }
 
   protected static prepareOpts(optsOrType: ParseBodyOpts | ClassType<unknown> | undefined) {
@@ -49,7 +50,11 @@ export class BodyParser {
   }
 
   private static parseJsonString(body: any): Record<string, any> {
-    return JSON.parse(body);
+    try {
+      return JSON.parse(body);
+    } catch (error) {
+      throw new BadRequestError('Malformed Body. Expected stringified json content.');
+    }
   }
 
   private static transformToTarget(body: Record<string, any>, opts: ParseBodyOpts): Object {
@@ -68,10 +73,14 @@ export class BodyParser {
 
 
   private static validateEvent(event: any) {
-    const supportedMethod = ['post', 'put', 'patch'].includes(event.httpMethod.toLowerCase());
-    const supportedContentType = (event.headers['Content-Type'] === 'application/json');
-    const hasBody = !!event.body;
-    return hasBody && supportedMethod && supportedContentType;
+    try {
+      const supportedMethod = ['post', 'put', 'patch'].includes(event.httpMethod?.toLowerCase());
+      const supportedContentType = (event.headers && event.headers['Content-Type'] === 'application/json');
+      const hasBody = !!event.body;
+      return hasBody && supportedMethod && supportedContentType;
+    } catch (error) {
+      return false;
+    }
   }
 
   private static async validateBody(body: Object, opts: ParseBodyOpts) {
