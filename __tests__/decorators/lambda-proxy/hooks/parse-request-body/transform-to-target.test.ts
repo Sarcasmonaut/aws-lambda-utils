@@ -16,6 +16,9 @@ describe("BodyParser.transformToTarget tests", () => {
   beforeEach(() => {
     mockPlainToClass.mockClear();
   });
+  afterAll(() => {
+    jest.resetModules();
+  });
 
   it("should return the body unmodified if !opts.type", () => {
     const body = {message: 'test'};

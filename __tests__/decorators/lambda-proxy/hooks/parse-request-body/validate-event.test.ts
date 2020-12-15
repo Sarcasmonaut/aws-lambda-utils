@@ -1,5 +1,4 @@
 import {BodyParser} from '../../../../../src/decorators/lambda-proxy/hooks/parse-request';
-
 describe("BodyParser.validateEvent tests", () => {
 
   it("should return false if no event given", () => {

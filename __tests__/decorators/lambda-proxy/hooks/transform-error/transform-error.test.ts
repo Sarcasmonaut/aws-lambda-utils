@@ -1,6 +1,6 @@
-import {LambdaProxyHookParams} from '../../../../../src/decorators/lambda';
 import {transformError} from '../../../../../src/decorators/lambda-proxy/hooks/transform-error';
 import {BadRequestError} from '../../../../../src/errors';
+import {LambdaProxyHookParams} from '../../../../../src/decorators/lambda-proxy';
 
 describe("transformError tests", () => {
   test.each([

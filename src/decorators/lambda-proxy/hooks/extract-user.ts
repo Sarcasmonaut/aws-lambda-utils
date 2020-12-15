@@ -1,5 +1,5 @@
 import {BeforeHook} from '../../../hooks';
-import {LambdaProxyHookParams} from '../../lambda';
+import {LambdaProxyHookParams} from '../index';
 
 export const extractUser: BeforeHook = (params: LambdaProxyHookParams) => {
   const opts = params.userOpts;

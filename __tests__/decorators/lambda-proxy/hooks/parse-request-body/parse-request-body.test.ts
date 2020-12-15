@@ -1,6 +1,6 @@
-import {LambdaProxyHookParams} from '../../../../../src/decorators/lambda';
 import {classToPlain, Expose} from 'class-transformer';
 import {BodyParser, ParseBodyOpts} from '../../../../../src/decorators/lambda-proxy/hooks/parse-request';
+import {LambdaProxyHookParams} from '../../../../../src/decorators/lambda-proxy';
 
 describe("BodyParser.parseRequestBody tests", () => {
   class TestDto {

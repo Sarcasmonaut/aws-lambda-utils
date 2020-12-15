@@ -4,23 +4,35 @@ import {ClassType} from 'class-transformer/ClassTransformer';
 import {DecoratorFactory} from '../factory';
 import {extractUser, injectCors, parseRequestBody} from './hooks';
 import {transformError} from './hooks/transform-error';
+import {jsonify, setStatus, transformResponseBody, TransformResultOpts} from './hooks/transform-result';
+import {HookParams} from '../../hooks';
+import {
+  APIGatewayEventRequestContext,
+  APIGatewayProxyEvent,
+  APIGatewayProxyHandler,
+  APIGatewayProxyHandlerV2,
+  APIGatewayProxyResult
+} from 'aws-lambda';
 
 export interface LambdaProxyOpts {
-  error?: number
-  success?: number
-  json?: boolean
   userSource?: LambdaProxyUserSource
   body?: ParseBodyOpts | ClassType<unknown>
-  returns?: ClassType<unknown>
+  returns?: TransformResultOpts | ClassType<unknown> | number
 }
 
-export function LambdaProxy(proxyOpts: LambdaProxyOpts) {
+export function LambdaProxy(proxyOpts?: LambdaProxyOpts) {
   return DecoratorFactory('LambdaProxy', {
     before: [extractUser, parseRequestBody],
-    onSuccess: [],
+    onSuccess: [transformResponseBody],
     onError: [transformError],
-    finally: [injectCors],
-    // onSuccess: [transformResult],
-    // finally: [transformResponseBody, setStatus]
-  }, proxyOpts);
-}// export type LambdaProxyBodyOptions = ParseBodyOpts | Function
+    finally: [jsonify, setStatus, injectCors],
+  }, proxyOpts || {});
+}
+
+export interface LambdaProxyHookParams extends HookParams {
+  decoratedFunction: APIGatewayProxyHandlerV2 | APIGatewayProxyHandler
+  args: [APIGatewayProxyEvent, APIGatewayEventRequestContext]
+  result?: Partial<APIGatewayProxyResult> | any
+  error?: Error | string
+  userOpts: LambdaProxyOpts
+}

@@ -1,5 +1,5 @@
 import {ErrorHook} from '../../../hooks';
-import {LambdaProxyHookParams} from '../../lambda';
+import {LambdaProxyHookParams} from '../index';
 
 export const transformError: ErrorHook = (params: LambdaProxyHookParams) => {
   let error, message;

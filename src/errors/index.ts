@@ -17,3 +17,8 @@ export class NotFoundError extends Error {
   public name = "NotFoundError";
   public statusCode = 404;
 }
+
+export class DuplicateError extends Error {
+  public name = "DuplicateError";
+  public statusCode = 409;
+}

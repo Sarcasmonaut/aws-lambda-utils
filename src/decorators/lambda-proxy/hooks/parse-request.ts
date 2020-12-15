@@ -1,22 +1,15 @@
-import {LambdaProxyHookParams} from '../../lambda';
 import {validateOrReject, ValidationError} from 'class-validator';
 import {BadRequestError} from '../../../errors';
 import {ClassType} from 'class-transformer/ClassTransformer';
 import {plainToClass} from 'class-transformer';
+import {TransformationOpts} from './index';
+import {LambdaProxyHookParams} from '../index';
 
-
-export interface ParseBodyOpts {
+export interface ParseBodyOpts extends TransformationOpts {
   /* `true` by default - setting to FALSE will prevent the body to being parsed by JSON.parse()*/
   parse?: boolean
-  /* `true` will filter out all values that aren't decorated with @Expose */
-  strict?: boolean
-  /* will remove all `undefined` fields from dto, if set to `true` */
-  stripUndefined?: boolean
-  /* the class in which the body shall be tried to be parsed into */
-  type?: ClassType<unknown>
   /* `true` will also call classValidator.validateOrReject. Supports only classValidator decorators. */
   validate?: boolean
-
 }
 
 export class BodyParser {
@@ -34,11 +27,7 @@ export class BodyParser {
   }
 
   protected static prepareOpts(optsOrType: ParseBodyOpts | ClassType<unknown> | undefined) {
-    let opts: ParseBodyOpts = {
-      strict: true,
-      validate: true,
-      stripUndefined: false
-    };
+    let opts = this.getDefaultOpts();
     if (!optsOrType) {
       return opts;
     }
@@ -50,6 +39,15 @@ export class BodyParser {
     return opts;
   }
 
+  protected static getDefaultOpts() {
+    let opts: ParseBodyOpts = {
+      strict: true,
+      validate: true,
+      stripUndefined: false
+    };
+    return opts;
+  }
+
   private static parseJsonString(body: any): Record<string, any> {
     try {
       return JSON.parse(body);
@@ -58,12 +56,12 @@ export class BodyParser {
     }
   }
 
-  private static transformToTarget(body: Record<string, any>, opts: ParseBodyOpts): Object {
+  protected static transformToTarget(body: Record<string, any>, opts: ParseBodyOpts): Object {
     if (!opts.type) {
       return body;
     }
-    const excludeExtraneousValues = opts.strict;
-    const transformed: any = plainToClass(opts.type, body, {excludeExtraneousValues});
+    const transformationOpts = this.buildTransformationOpts(opts);
+    const transformed: any = plainToClass(opts.type, body, transformationOpts);
 
     if (opts.stripUndefined) {
       Object.keys(transformed).forEach(key => transformed[key] === undefined ? delete transformed[key] : {});
@@ -72,6 +70,11 @@ export class BodyParser {
     return transformed;
   }
 
+
+  protected static buildTransformationOpts(opts: ParseBodyOpts) {
+    const excludeExtraneousValues = opts.strict;
+    return {excludeExtraneousValues};
+  }
 
   private static validateEvent(event: any) {
     try {

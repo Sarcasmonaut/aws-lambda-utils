@@ -1,5 +1,5 @@
 import {FinallyHook} from '../../../hooks';
-import {LambdaProxyHookParams} from '../../lambda';
+import {LambdaProxyHookParams} from '../index';
 
 export const injectCors: FinallyHook = (params: LambdaProxyHookParams) => {
   const corsDefaultHeaders = {
