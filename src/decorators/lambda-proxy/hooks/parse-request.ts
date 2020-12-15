@@ -1,8 +1,9 @@
 import {LambdaProxyHookParams} from '../../lambda';
-import {plainToClass} from 'class-transformer';
 import {validateOrReject, ValidationError} from 'class-validator';
 import {BadRequestError} from '../../../errors';
 import {ClassType} from 'class-transformer/ClassTransformer';
+import {plainToClass} from 'class-transformer';
+
 
 export interface ParseBodyOpts {
   /* `true` by default - setting to FALSE will prevent the body to being parsed by JSON.parse()*/
@@ -18,7 +19,7 @@ export interface ParseBodyOpts {
 
 }
 
-class BodyParser {
+export class BodyParser {
   public static async parseRequestBody(params: LambdaProxyHookParams): Promise<void> {
     const opts = this.prepareOpts(params.userOpts.body);
     const event = params.args[0];

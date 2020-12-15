@@ -1,7 +1,8 @@
 import {LambdaProxyUserSource} from './hooks/extract-user';
-import {ParseBodyOpts, parseRequestBody} from './hooks/parse-request';
+import {ParseBodyOpts} from './hooks/parse-request';
 import {ClassType} from 'class-transformer/ClassTransformer';
 import {DecoratorFactory} from '../factory';
+import {extractUser, injectCors, parseRequestBody} from './hooks';
 
 export interface LambdaProxyOpts {
   error?: number
@@ -14,7 +15,8 @@ export interface LambdaProxyOpts {
 
 export function LambdaProxy(proxyOpts: LambdaProxyOpts) {
   return DecoratorFactory('LambdaProxy', {
-    before: [parseRequestBody]
+    before: [extractUser, parseRequestBody],
+    finally: [injectCors]
     // before: [extractUser, parseRequestBody, parseAndValidateRequestBody],
     // onError: [transformError],
     // onSuccess: [transformResult],
