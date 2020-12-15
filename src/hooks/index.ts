@@ -20,7 +20,7 @@ export interface HookParams {
   decoratedFunction: any,
   args: any
   result?: any
-  error?: Error
+  error?: Error | string
   userOpts: any
 }
 
