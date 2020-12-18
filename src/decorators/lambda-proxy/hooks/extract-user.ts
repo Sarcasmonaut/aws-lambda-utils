@@ -3,7 +3,7 @@ import {LambdaProxyHookParams} from '../index';
 
 export const extractUser: BeforeHook = (params: LambdaProxyHookParams) => {
   const opts = params.userOpts;
-  const event = params.args[0] || {};
+  const event = params.args[0];
   let user;
 
   if (opts.userSource === 'cognito') {

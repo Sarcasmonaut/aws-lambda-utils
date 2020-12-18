@@ -3,6 +3,7 @@ import {BadRequestError} from '../../../../../src/errors';
 import {LambdaProxyHookParams} from '../../../../../src/decorators/lambda-proxy';
 
 describe("transformError tests", () => {
+
   test.each([
     ['a simple string', {error: 'InternalServerError', message: 'a simple string'}],
     [{name: 'expectedName', message: 'expectedMessage'}, {error: 'expectedName', message: 'expectedMessage'}],

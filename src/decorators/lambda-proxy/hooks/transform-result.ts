@@ -17,18 +17,21 @@ export class ResponseTransformer extends BodyParser {
 
   public static async setStatus(params: LambdaProxyHookParams) {
     params.result = params.result || {};
-    if (!params.error) {
-      const opts = this.prepareOpts(params.userOpts.returns);
-      params.result.statusCode = params.result.statusCode || opts.status
-    } else {
+    if (params.error) {
       params.result.statusCode = this.getErrorStatus(params)
+    } else {
+      const opts = this.prepareOpts(params.userOpts?.returns);
+      params.result.statusCode = params.result.statusCode || opts.status
     }
   }
 
   public static jsonify(params: LambdaProxyHookParams) {
-    params.result = params.result || {};
     let body = params.result?.body || params.result;
-    params.result = {body: JSON.stringify(body)};
+    if (typeof body === 'string' || body == null)
+      params.result = { body }
+    else
+      params.result = {body: JSON.stringify(body)};
+
   }
 
   protected static prepareOpts(optsOrTypeOrStatus: TransformResultOpts | ClassType<unknown> | number | undefined): TransformResultOpts {
@@ -64,7 +67,7 @@ export class ResponseTransformer extends BodyParser {
       if (!presetCode) {
         // todo: gotta consider an option to inject some kind of error mapping to be able to
         // map mongoose errors for example
-        if (params.error instanceof ValidationError || params.error?.constructor.name.includes('Validation')) {
+        if (params.error instanceof ValidationError || params.error!.constructor.name.includes('Validation')) {
           return 400;
         }
       }

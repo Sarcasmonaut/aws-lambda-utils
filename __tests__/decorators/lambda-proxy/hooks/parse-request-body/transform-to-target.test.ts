@@ -50,10 +50,11 @@ describe("BodyParser.transformToTarget tests", () => {
 
   test.each([1, 'something', true, [1]])("[ %p ] will remove undefined values if opts.stripUndefined truthy", (strip: any) => {
     const opts: ParseBodyOpts = {type: TestDto, stripUndefined: strip, strict: false};
-    const body = {};
+    const body = { exposed: "I shall remain"};
     // @ts-ignore
     const res = BodyParser.transformToTarget(body, opts);
     expect(res).not.toHaveProperty('message');
+    expect(res).toHaveProperty('exposed', body.exposed);
   });
 
   it("should only return exposed fields if strict is true", () => {

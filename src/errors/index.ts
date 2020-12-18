@@ -7,6 +7,10 @@ export class BadRequestError extends Error {
   public name = "BadRequest";
   public statusCode = 400;
 }
+export class UnauthorizedError extends Error {
+  public name = "Unauthorized";
+  public statusCode = 401;
+}
 
 export class ForbiddenError extends Error {
   public name = "ForbiddenError";

@@ -44,5 +44,36 @@ describe("BodyParser.parseRequestBody tests", () => {
       expect(classToPlain(event.body)).toEqual(expected)
     });
 
+  it ("should return without parsing, if opts.parse = false", () => {
+      // @ts-ignore
+    const mockPrepareOpts = jest.spyOn(BodyParser, 'prepareOpts')
+    mockPrepareOpts.mockImplementationOnce(() => ({ parse: false}))
+
+    // @ts-ignore
+    const spyValidateEvent = jest.spyOn(BodyParser, 'validateEvent')
+    // @ts-ignore
+    const spyParseJsonString = jest.spyOn(BodyParser, 'parseJsonString')
+
+    BodyParser.parseRequestBody({args: [{}, {}], userOpts: {}} as any)
+    expect(spyValidateEvent).not.toHaveBeenCalled()
+    expect(spyParseJsonString).not.toHaveBeenCalled()
+  })
+
+  it ("should return without parsing, if validateEvent = false", () => {
+      // @ts-ignore
+    const mockPrepareOpts = jest.spyOn(BodyParser, 'prepareOpts')
+    mockPrepareOpts.mockImplementationOnce(() => ({ parse: true}))
+
+    // @ts-ignore
+    const mockValidateEvent = jest.spyOn(BodyParser, 'validateEvent')
+    mockValidateEvent.mockImplementationOnce(() => false)
+    // @ts-ignore
+    const spyParseJsonString = jest.spyOn(BodyParser, 'parseJsonString')
+
+    BodyParser.parseRequestBody({args: [{}, {}], userOpts: {}} as any)
+    expect(mockValidateEvent).toHaveBeenCalled()
+    expect(spyParseJsonString).not.toHaveBeenCalled()
+  })
+
 
 });
