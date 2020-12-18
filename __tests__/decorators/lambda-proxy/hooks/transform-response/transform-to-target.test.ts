@@ -4,7 +4,7 @@ import {
 } from '../../../../../src/decorators/lambda-proxy/hooks/transform-result';
 import * as classTransformer from 'class-transformer';
 import {Expose} from 'class-transformer';
-
+import 'reflect-metadata';
 describe("ResultTransformer.transformToTarget tests", () => {
   const mockPlainToClass = jest.spyOn(classTransformer, 'plainToClass');
   class TestDto {
