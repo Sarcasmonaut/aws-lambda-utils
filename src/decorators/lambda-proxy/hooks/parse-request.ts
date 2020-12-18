@@ -1,19 +1,21 @@
-import {validateOrReject, ValidationError} from 'class-validator';
-import {BadRequestError} from '../../../errors';
-import {ClassType} from 'class-transformer/ClassTransformer';
-import {plainToClass} from 'class-transformer';
-import {TransformationOpts} from './index';
-import {LambdaProxyHookParams} from '../index';
+import { validateOrReject, ValidationError } from "class-validator";
+import { BadRequestError } from "../../../errors";
+import { ClassType } from "class-transformer/ClassTransformer";
+import { ClassTransformOptions, plainToClass } from "class-transformer";
+import { TransformationOpts } from "./index";
+import { LambdaProxyHookParams } from "../index";
 
 export interface ParseBodyOpts extends TransformationOpts {
   /* `true` by default - setting to FALSE will prevent the body to being parsed by JSON.parse()*/
-  parse?: boolean
+  parse?: boolean;
   /* `true` will also call classValidator.validateOrReject. Supports only classValidator decorators. */
-  validate?: boolean
+  validate?: boolean;
 }
 
 export class BodyParser {
-  public static async parseRequestBody(params: LambdaProxyHookParams): Promise<void> {
+  public static async parseRequestBody(
+    params: LambdaProxyHookParams
+  ): Promise<void> {
     const opts = this.prepareOpts(params.userOpts.body);
     const event = params.args[0];
     if (opts.parse === false || !this.validateEvent(event)) {
@@ -26,12 +28,14 @@ export class BodyParser {
     return Promise.resolve();
   }
 
-  protected static prepareOpts(optsOrType: ParseBodyOpts | ClassType<unknown> | undefined) {
+  protected static prepareOpts(
+    optsOrType: ParseBodyOpts | ClassType<unknown> | undefined
+  ): ParseBodyOpts {
     let opts = this.getDefaultOpts();
     if (!optsOrType) {
       return opts;
     }
-    if (typeof optsOrType === 'function') {
+    if (typeof optsOrType === "function") {
       opts.type = optsOrType;
     } else {
       opts = Object.assign(opts, optsOrType);
@@ -39,24 +43,29 @@ export class BodyParser {
     return opts;
   }
 
-  protected static getDefaultOpts() {
-    let opts: ParseBodyOpts = {
+  protected static getDefaultOpts(): ParseBodyOpts {
+    const opts: ParseBodyOpts = {
       strict: true,
       validate: true,
-      stripUndefined: false
+      stripUndefined: false,
     };
     return opts;
   }
 
-  private static parseJsonString(body: any): Record<string, any> {
+  private static parseJsonString(body: any): Record<string, unknown> {
     try {
       return JSON.parse(body);
     } catch (error) {
-      throw new BadRequestError('Malformed Body. Expected stringified json content.');
+      throw new BadRequestError(
+        "Malformed Body. Expected stringified json content."
+      );
     }
   }
 
-  protected static transformToTarget(body: Record<string, any>, opts: ParseBodyOpts): Object {
+  protected static transformToTarget(
+    body: unknown,
+    opts: ParseBodyOpts
+  ): unknown {
     if (!opts.type) {
       return body;
     }
@@ -64,22 +73,28 @@ export class BodyParser {
     const transformed: any = plainToClass(opts.type, body, transformationOpts);
 
     if (opts.stripUndefined) {
-      Object.keys(transformed).forEach(key => transformed[key] === undefined ? delete transformed[key] : {});
+      Object.keys(transformed).forEach((key) =>
+        transformed[key] === undefined ? delete transformed[key] : {}
+      );
     }
 
     return transformed;
   }
 
-
-  protected static buildTransformationOpts(opts: ParseBodyOpts) {
+  protected static buildTransformationOpts(
+    opts: ParseBodyOpts
+  ): ClassTransformOptions {
     const excludeExtraneousValues = opts.strict;
-    return {excludeExtraneousValues};
+    return { excludeExtraneousValues };
   }
 
-  private static validateEvent(event: any) {
+  private static validateEvent(event: any): boolean {
     try {
-      const supportedMethod = ['post', 'put', 'patch'].includes(event.httpMethod?.toLowerCase());
-      const supportedContentType = (event.headers && event.headers['Content-Type'] === 'application/json');
+      const supportedMethod = ["post", "put", "patch"].includes(
+        event.httpMethod?.toLowerCase()
+      );
+      const supportedContentType =
+        event.headers && event.headers["Content-Type"] === "application/json";
       const hasBody = !!event.body;
       return hasBody && supportedMethod && supportedContentType;
     } catch (error) {
@@ -87,16 +102,20 @@ export class BodyParser {
     }
   }
 
-  private static async validateBody(body: Object, opts: ParseBodyOpts) {
+  private static async validateBody(body: unknown, opts: ParseBodyOpts) {
     if (!opts.validate) {
       return;
     }
 
-    await validateOrReject(body as Object).catch((errors: ValidationError[]) => {
-      const message = errors.map((e: ValidationError) => Object.values(e.constraints as Record<string, string>)).join('.\n');
+    await validateOrReject(body as any).catch((errors: ValidationError[]) => {
+      const message = errors
+        .map((e: ValidationError) =>
+          Object.values(e.constraints as Record<string, string>)
+        )
+        .join(".\n");
       throw new BadRequestError(message);
     });
   }
 }
 
-export const {parseRequestBody} = BodyParser;
+export const { parseRequestBody } = BodyParser;

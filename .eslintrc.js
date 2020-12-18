@@ -9,11 +9,12 @@ module.exports = {
   },
   overrides: [
     {
-      "files": ["*__test__","*.spec.js"],
-      "rules": {
-        "no-unused-expressions": "off"
-      }
-    }
+      files: ["*.test.ts", "*.spec.js"],
+      rules: {
+        "no-unused-expressions": "off",
+        "@typescript-eslint/ban-ts-comment": "off",
+      },
+    },
   ],
   extends: [
     "eslint:recommended",

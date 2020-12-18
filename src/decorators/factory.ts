@@ -1,21 +1,41 @@
-import 'reflect-metadata';
+import "reflect-metadata";
 import * as _ from "lodash";
-import {AfterHook, AfterHookParams, BeforeHook, ErrorHook, ErrorHookParams, FinallyHook, HookParams} from '../hooks';
+import {
+  AfterHook,
+  AfterHookParams,
+  BeforeHook,
+  ErrorHook,
+  ErrorHookParams,
+  FinallyHook,
+  HookParams,
+} from "../hooks";
 
 export interface DecoratorHooks {
-  before?: BeforeHook[]
-  onSuccess?: AfterHook[]
-  onError?: ErrorHook[]
-  finally?: FinallyHook[]
+  before?: BeforeHook[];
+  onSuccess?: AfterHook[];
+  onError?: ErrorHook[];
+  finally?: FinallyHook[];
 }
 
-export type HookFunction = (params: HookParams) => void | Promise<void>
+export type HookFunction = (params: HookParams) => void | Promise<void>;
 
-type DecoratorStep = keyof DecoratorHooks | 'before' | 'onSuccess' | 'onError' | 'finally'
-export const DecoratorFactory = (name: string, hooks: DecoratorHooks, userOpts: any = {}): any => {
-
-  function generateDescriptor(descriptor: PropertyDescriptor, descriptorTarget: any, targetKey: string): PropertyDescriptor {
-    const originalMethod: Function = descriptor.value;
+type DecoratorStep =
+  | keyof DecoratorHooks
+  | "before"
+  | "onSuccess"
+  | "onError"
+  | "finally";
+export const DecoratorFactory = (
+  name: string,
+  hooks: DecoratorHooks,
+  userOpts: any = {}
+): ClassDecorator | PropertyDecorator | MethodDecorator => {
+  function generateDescriptor(
+    descriptor: PropertyDescriptor,
+    descriptorTarget: any,
+    targetKey: string
+  ): PropertyDescriptor {
+    const originalMethod = descriptor.value;
     descriptor.value = async function (...args: unknown[]) {
       async function executeStep(stepName: DecoratorStep, params: HookParams) {
         const stepHooks: HookFunction[] = hooks[stepName] || [];
@@ -25,21 +45,30 @@ export const DecoratorFactory = (name: string, hooks: DecoratorHooks, userOpts: 
       }
 
       let result: any;
-      const opts = Reflect.getMetadata(`${name}.${String(targetKey)}`, descriptorTarget);
-      const hookParams: HookParams = {decoratedFunction: originalMethod, args: _.cloneDeep(args), userOpts: opts};
+      const opts = Reflect.getMetadata(
+        `${name}.${String(targetKey)}`,
+        descriptorTarget
+      );
+      const hookParams: HookParams = {
+        decoratedFunction: originalMethod,
+        args: _.cloneDeep(args),
+        userOpts: opts,
+      };
       try {
-        await executeStep('before', hookParams);
-        result = await Promise.resolve(originalMethod.apply(this, hookParams.args));
+        await executeStep("before", hookParams);
+        result = await Promise.resolve(
+          originalMethod.apply(this, hookParams.args)
+        );
         (hookParams as AfterHookParams).result = result;
-        await executeStep('onSuccess', hookParams);
+        await executeStep("onSuccess", hookParams);
       } catch (error) {
         (hookParams as ErrorHookParams).error = error;
         if (!hooks.onError || hooks.onError.length <= 0) {
-          throw error
+          throw error;
         }
-        await executeStep('onError', hookParams);
+        await executeStep("onError", hookParams);
       } finally {
-        await executeStep('finally', hookParams);
+        await executeStep("finally", hookParams);
       }
       return (hookParams as AfterHookParams).result;
     };
@@ -54,12 +83,23 @@ export const DecoratorFactory = (name: string, hooks: DecoratorHooks, userOpts: 
     for (const propertyName of instanceKeys.filter(
       (prop) => prop !== "constructor"
     )) {
-      const metadata = Reflect.getMetadata(`${name}.${String(propertyName)}`, descriptorTarget);
+      const metadata = Reflect.getMetadata(
+        `${name}.${String(propertyName)}`,
+        descriptorTarget
+      );
       if (metadata) {
-        Reflect.defineMetadata(`${name}.${String(propertyName)}`, {...userOpts, ...metadata}, descriptorTarget);
+        Reflect.defineMetadata(
+          `${name}.${String(propertyName)}`,
+          { ...userOpts, ...metadata },
+          descriptorTarget
+        );
         continue;
       }
-      Reflect.defineMetadata(`${name}.${String(propertyName)}`, userOpts, descriptorTarget);
+      Reflect.defineMetadata(
+        `${name}.${String(propertyName)}`,
+        userOpts,
+        descriptorTarget
+      );
       const desc = Object.getOwnPropertyDescriptor(
         descriptorTarget,
         propertyName
@@ -99,7 +139,11 @@ export const DecoratorFactory = (name: string, hooks: DecoratorHooks, userOpts: 
     decorateStaticProperties(target, propertyKey);
   }
 
-  function decorateMethod(descriptor: PropertyDescriptor, descriptorTarget: any, targetKey: any) {
+  function decorateMethod(
+    descriptor: PropertyDescriptor,
+    descriptorTarget: any,
+    targetKey: any
+  ) {
     return generateDescriptor(descriptor, descriptorTarget, targetKey);
   }
 
@@ -108,12 +152,18 @@ export const DecoratorFactory = (name: string, hooks: DecoratorHooks, userOpts: 
     propertyKey?: string | symbol,
     descriptor?: PropertyDescriptor
   ) {
-
     let decoratedOpts;
     if (descriptor && propertyKey) {
-      decoratedOpts = Reflect.getMetadata(`${name}.${String(propertyKey)}`, target);
+      decoratedOpts = Reflect.getMetadata(
+        `${name}.${String(propertyKey)}`,
+        target
+      );
       if (!decoratedOpts) {
-        Reflect.defineMetadata(`${name}.${String(propertyKey)}`, userOpts, target);
+        Reflect.defineMetadata(
+          `${name}.${String(propertyKey)}`,
+          userOpts,
+          target
+        );
         decorateMethod(descriptor, target, propertyKey);
       }
       return;
@@ -126,6 +176,5 @@ export const DecoratorFactory = (name: string, hooks: DecoratorHooks, userOpts: 
       Reflect.defineMetadata(name, userOpts, target);
       decorateClass(target, propertyKey);
     }
-
   };
 };

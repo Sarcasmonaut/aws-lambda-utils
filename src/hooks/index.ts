@@ -1,41 +1,41 @@
-import {HookFunction} from '../decorators/factory';
+import { HookFunction } from "../decorators/factory";
 
 export interface AfterHook extends HookFunction {
-  (params: AfterHookParams): void | Promise<void>
+  (params: AfterHookParams): void | Promise<void>;
 }
 
 export interface ErrorHook extends HookFunction {
-  (params: ErrorHookParams): void | Promise<void>
+  (params: ErrorHookParams): void | Promise<void>;
 }
 
 export interface FinallyHook extends HookFunction {
-  (params: FinallyHookParams): void | Promise<void>
+  (params: FinallyHookParams): void | Promise<void>;
 }
 
 export interface BeforeHook extends HookFunction {
-  (params: BeforeHookParams): void | Promise<void>
+  (params: BeforeHookParams): void | Promise<void>;
 }
 
 export interface HookParams {
-  decoratedFunction: any,
-  args: any
-  result?: any
-  error?: Error | string
-  userOpts: any
+  decoratedFunction: any;
+  args: any;
+  result?: any;
+  error?: Error | string;
+  userOpts: any;
 }
 
 export interface FinallyHookParams extends HookParams {
-  result?: any
-  error?: Error
+  result?: any;
+  error?: Error;
 }
 
-export type BeforeHookParams = HookParams
+export type BeforeHookParams = HookParams;
 
 export interface AfterHookParams extends HookParams {
-  result: any
+  result: any;
 }
 
 export interface ErrorHookParams extends HookParams {
-  result?: any
-  error: Error
+  result?: any;
+  error: Error;
 }
