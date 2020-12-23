@@ -83,23 +83,17 @@ export const DecoratorFactory = (
     for (const propertyName of instanceKeys.filter(
       (prop) => prop !== "constructor"
     )) {
-      const metadata = Reflect.getMetadata(
-        `${name}.${String(propertyName)}`,
-        descriptorTarget
-      );
+      const metadataKey = `${name}.${String(propertyName)}`;
+      const metadata = Reflect.getMetadata(metadataKey, descriptorTarget);
       if (metadata) {
         Reflect.defineMetadata(
-          `${name}.${String(propertyName)}`,
+          metadataKey,
           { ...userOpts, ...metadata },
           descriptorTarget
         );
         continue;
       }
-      Reflect.defineMetadata(
-        `${name}.${String(propertyName)}`,
-        userOpts,
-        descriptorTarget
-      );
+      Reflect.defineMetadata(metadataKey, userOpts, descriptorTarget);
       const desc = Object.getOwnPropertyDescriptor(
         descriptorTarget,
         propertyName

@@ -78,6 +78,7 @@ describe("extractUser tests", () => {
       const opts: LambdaProxyOpts = { userSource: "principalId" };
       const event: any = { requestContext: {} };
       const context: any = {};
+      const original = process.env[envKey];
       process.env[envKey] = val;
       await extractUser({
         args: [event, context],
@@ -85,6 +86,7 @@ describe("extractUser tests", () => {
         userOpts: opts,
       });
       expect(event).toHaveProperty("user", "LOCAL_USER");
+      process.env[envKey] = original;
     }
   );
 });

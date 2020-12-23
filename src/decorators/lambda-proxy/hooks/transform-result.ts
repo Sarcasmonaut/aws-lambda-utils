@@ -1,9 +1,9 @@
-import {BodyParser} from "./parse-request";
-import {classToPlain, ClassTransformOptions} from "class-transformer";
-import {ClassType} from "class-transformer/ClassTransformer";
-import {ValidationError} from "class-validator";
-import {TransformationOpts} from "./index";
-import {LambdaProxyHookParams} from "../index";
+import { BodyParser } from "./parse-request";
+import { classToPlain, ClassTransformOptions } from "class-transformer";
+import { ClassType } from "class-transformer/ClassTransformer";
+import { ValidationError } from "class-validator";
+import { TransformationOpts } from "./index";
+import { LambdaProxyHookParams } from "../index";
 
 export interface TransformResultOpts extends TransformationOpts {
   status?: number;
@@ -12,7 +12,7 @@ export interface TransformResultOpts extends TransformationOpts {
 export class ResponseTransformer extends BodyParser {
   public static transformResponseBody(params: LambdaProxyHookParams): void {
     const opts = this.prepareOpts(params.userOpts.returns);
-    params.result = {body: this.transformToTarget(params.result, opts)};
+    params.result = { body: this.transformToTarget(params.result, opts) };
   }
 
   public static setStatus(params: LambdaProxyHookParams): void {
@@ -27,8 +27,8 @@ export class ResponseTransformer extends BodyParser {
 
   public static jsonify(params: LambdaProxyHookParams): void {
     const body = params.result?.body || params.result;
-    if (typeof body === "string" || body == null) params.result = {body};
-    else params.result = {body: JSON.stringify(body)};
+    if (typeof body === "string" || body == null) params.result = { body };
+    else params.result = { body: JSON.stringify(body) };
   }
 
   protected static prepareOpts(
@@ -40,7 +40,7 @@ export class ResponseTransformer extends BodyParser {
   ): TransformResultOpts {
     optsOrTypeOrStatus = optsOrTypeOrStatus || {};
     if (typeof optsOrTypeOrStatus === "number") {
-      optsOrTypeOrStatus = {status: optsOrTypeOrStatus};
+      optsOrTypeOrStatus = { status: optsOrTypeOrStatus };
     }
     return super.prepareOpts(optsOrTypeOrStatus);
   }
@@ -89,6 +89,3 @@ export class ResponseTransformer extends BodyParser {
     return presetCode || 500;
   }
 }
-
-
-

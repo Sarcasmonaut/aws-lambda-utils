@@ -1,9 +1,16 @@
-import {LambdaProxyUserSource} from "./hooks/extract-user";
-import {ClassType} from "class-transformer/ClassTransformer";
-import {DecoratorFactory} from "../factory";
-import {BodyParser, extractUser, injectCors, ParseBodyOpts, ResponseTransformer, TransformResultOpts} from "./hooks";
-import {transformError} from "./hooks/transform-error";
-import {HookParams} from "../../hooks";
+import { LambdaProxyUserSource } from "./hooks/extract-user";
+import { ClassType } from "class-transformer/ClassTransformer";
+import { DecoratorFactory } from "../factory";
+import {
+  BodyParser,
+  extractUser,
+  injectCors,
+  ParseBodyOpts,
+  ResponseTransformer,
+  TransformResultOpts,
+} from "./hooks";
+import { transformError } from "./hooks/transform-error";
+import { HookParams } from "../../hooks";
 import {
   APIGatewayEventRequestContext,
   APIGatewayProxyEvent,
@@ -18,10 +25,7 @@ export interface LambdaProxyOpts {
   returns?: TransformResultOpts | ClassType<unknown> | number;
 }
 
-export function LambdaProxy(
-  proxyOpts?: LambdaProxyOpts
-): any {
-
+export function LambdaProxy(proxyOpts?: LambdaProxyOpts): any {
   async function parseRequest(params: LambdaProxyHookParams) {
     await BodyParser.parseRequestBody(params);
   }
