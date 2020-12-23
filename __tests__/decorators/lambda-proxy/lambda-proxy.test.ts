@@ -117,4 +117,11 @@ describe("LambdaProxy tests", () => {
     expect(res).toHaveProperty("statusCode", 200);
     expect(res).toHaveProperty("body", JSON.stringify(new TestDto()));
   });
+
+  it("should inject cors headers", async () => {
+    const event = preparePostEvent();
+
+
+
+  })
 });
