@@ -1,16 +1,9 @@
-import { LambdaProxyUserSource } from "./hooks/extract-user";
-import { ParseBodyOpts } from "./hooks/parse-request";
-import { ClassType } from "class-transformer/ClassTransformer";
-import { DecoratorFactory } from "../factory";
-import { extractUser, injectCors, parseRequestBody } from "./hooks";
-import { transformError } from "./hooks/transform-error";
-import {
-  jsonify,
-  setStatus,
-  transformResponseBody,
-  TransformResultOpts,
-} from "./hooks/transform-result";
-import { HookParams } from "../../hooks";
+import {LambdaProxyUserSource} from "./hooks/extract-user";
+import {ClassType} from "class-transformer/ClassTransformer";
+import {DecoratorFactory} from "../factory";
+import {BodyParser, extractUser, injectCors, ParseBodyOpts, ResponseTransformer, TransformResultOpts} from "./hooks";
+import {transformError} from "./hooks/transform-error";
+import {HookParams} from "../../hooks";
 import {
   APIGatewayEventRequestContext,
   APIGatewayProxyEvent,
@@ -27,11 +20,28 @@ export interface LambdaProxyOpts {
 
 export function LambdaProxy(
   proxyOpts?: LambdaProxyOpts
-): ClassDecorator | PropertyDecorator | MethodDecorator {
+): any {
+
+  async function parseRequest(params: LambdaProxyHookParams) {
+    await BodyParser.parseRequestBody(params);
+  }
+
+  async function jsonify(params: LambdaProxyHookParams) {
+    await ResponseTransformer.jsonify(params);
+  }
+
+  async function transformResponseBody(params: LambdaProxyHookParams) {
+    await ResponseTransformer.transformResponseBody(params);
+  }
+
+  async function setStatus(params: LambdaProxyHookParams) {
+    await ResponseTransformer.setStatus(params);
+  }
+
   return DecoratorFactory(
     "LambdaProxy",
     {
-      before: [extractUser, parseRequestBody],
+      before: [extractUser, parseRequest],
       onSuccess: [transformResponseBody],
       onError: [transformError],
       finally: [jsonify, setStatus, injectCors],

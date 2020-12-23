@@ -22,7 +22,7 @@ describe("ResponseTransformer.prepareOpts test", () => {
   });
 
   it("should merge provided opts with defaults", () => {
-    const defaults = { stripUndefined: false };
+    const defaults = { stripUndefined: false, strict: false };
     const parseOpts: TransformResultOpts = {
       type: DummyDto,
       status: 300,

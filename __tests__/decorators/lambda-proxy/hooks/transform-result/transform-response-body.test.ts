@@ -12,9 +12,9 @@ describe("ResponseTransformer.transformResponseBody tests", () => {
   });
 
   it("should assign result of transformToTarget to param.result ", () => {
-    // @ts-ignore
     const mockTransformToTarget = jest.spyOn(
       ResponseTransformer,
+    // @ts-ignore
       "transformToTarget"
     );
     const expectedResult = { this: "shouldBeResult" };

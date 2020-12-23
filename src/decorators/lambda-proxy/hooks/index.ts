@@ -1,9 +1,9 @@
-import { ClassType } from "class-transformer/ClassTransformer";
+import {ClassType} from "class-transformer/ClassTransformer";
+export {BodyParser, ParseBodyOpts} from "./parse-request";
+export {injectCors} from "./cors";
+export {extractUser} from "./extract-user";
+export {ResponseTransformer, TransformResultOpts} from "./transform-result";
 
-export { parseRequestBody, ParseBodyOpts } from "./parse-request";
-export { injectCors } from "./cors";
-export { extractUser } from "./extract-user";
-export { jsonify, transformResponseBody, setStatus } from "./transform-result";
 
 export interface TransformationOpts {
   /* `true` will filter out all values that aren't decorated with @Expose */
