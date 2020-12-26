@@ -7,6 +7,15 @@ module.exports = {
     "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
     "@typescript-eslint/no-explicit-any": "off",
   },
+  overrides: [
+    {
+      files: ["*.test.ts", "*.spec.js"],
+      rules: {
+        "no-unused-expressions": "off",
+        "@typescript-eslint/ban-ts-comment": "off",
+      },
+    },
+  ],
   extends: [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
