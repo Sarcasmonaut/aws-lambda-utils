@@ -1,5 +1,5 @@
 {
-  "name": "aws-lambda-utils",
+  "name": "@sarcasmonaut/aws-lambda-utils",
   "version": "0.1.1",
   "description": "Decorators and utilities for the average AWS Lambda development",
   "repository": "git@github.com:Sarcasmonaut/aws-lambda-utils.git",
