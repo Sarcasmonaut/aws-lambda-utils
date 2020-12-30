@@ -1,6 +1,6 @@
 {
-  "name": "aws-lambda-utils",
-  "version": "0.1.0",
+  "name": "@sarcasmonaut/aws-lambda-utils",
+  "version": "0.1.1",
   "description": "Decorators and utilities for the average AWS Lambda development",
   "repository": "git@github.com:Sarcasmonaut/aws-lambda-utils.git",
   "author": "Sarcasmonaut <patrik.kessler@outlook.de>",
@@ -8,18 +8,21 @@
   "private": false,
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc",
     "prepare": "npm run build",
-    "prepublishOnly": "npm test && npm lint",
-    "preversion": "npm lint",
+    "prepublishOnly": "npm test && npm run lint",
+    "preversion": "npm run lint",
     "version": "npm run format && git add -A src",
     "postversion": "git push && git push --tags",
     "prepack": "npm run build",
     "test": "jest --passWithNoTests --forceExit",
     "test:coverage": "npm test --coverage",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "lint:fix": "npm lint --fix",
+    "lint:fix": "npm run lint --fix",
     "format": "prettier --write ."
   },
   "devDependencies": {
@@ -49,6 +52,6 @@
     "reflect-metadata": "^0.1.13"
   },
   "files": [
-    "lib/**/*"
+    "lib"
   ]
 }
