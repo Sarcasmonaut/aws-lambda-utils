@@ -1,9 +1,10 @@
 import { validateOrReject, ValidationError } from "class-validator";
-import { BadRequestError } from "../../../errors";
+
 import { ClassType } from "class-transformer/ClassTransformer";
 import { ClassTransformOptions, plainToClass } from "class-transformer";
 import { TransformationOpts } from "./index";
 import { LambdaProxyHookParams } from "../index";
+import {BadRequestError} from '../../../errors';
 
 export interface ParseBodyOpts extends TransformationOpts {
   /* `true` by default - setting to FALSE will prevent the body to being parsed by JSON.parse()*/

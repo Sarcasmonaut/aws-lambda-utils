@@ -29,7 +29,7 @@ export const DecoratorFactory = (
   name: string,
   hooks: DecoratorHooks,
   userOpts: any = {}
-): ClassDecorator | PropertyDecorator | MethodDecorator => {
+): any => {
   function generateDescriptor(
     descriptor: PropertyDescriptor,
     descriptorTarget: any,
