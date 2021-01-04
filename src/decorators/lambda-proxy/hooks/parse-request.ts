@@ -67,18 +67,26 @@ export class BodyParser {
     body: unknown,
     opts: ParseBodyOpts
   ): unknown {
+    let transformed;
+    const transformationOpts = this.buildTransformationOpts(opts);
+    if (body instanceof Array) {
+      transformed = body.map(() => this.transformObjectToTarget(opts, body, transformationOpts))
+    } else {
+      transformed = this.transformObjectToTarget(opts, body, transformationOpts);
+    }
+    return transformed;
+  }
+
+  protected static transformObjectToTarget(opts: ParseBodyOpts, body: unknown, transformationOpts: ClassTransformOptions) {
     if (!opts.type) {
       return body;
     }
-    const transformationOpts = this.buildTransformationOpts(opts);
     const transformed: any = plainToClass(opts.type, body, transformationOpts);
-
     if (opts.stripUndefined) {
       Object.keys(transformed).forEach((key) =>
         transformed[key] === undefined ? delete transformed[key] : {}
       );
     }
-
     return transformed;
   }
 
