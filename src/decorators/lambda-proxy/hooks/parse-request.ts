@@ -4,7 +4,7 @@ import { ClassType } from "class-transformer/ClassTransformer";
 import { ClassTransformOptions, plainToClass } from "class-transformer";
 import { TransformationOpts } from "./index";
 import { LambdaProxyHookParams } from "../index";
-import {BadRequestError} from '../../../errors';
+import { BadRequestError } from "../../../errors";
 
 export interface ParseBodyOpts extends TransformationOpts {
   /* `true` by default - setting to FALSE will prevent the body to being parsed by JSON.parse()*/
@@ -70,14 +70,24 @@ export class BodyParser {
     let transformed;
     const transformationOpts = this.buildTransformationOpts(opts);
     if (body instanceof Array) {
-      transformed = body.map(() => this.transformObjectToTarget(opts, body, transformationOpts))
+      transformed = body.map(() =>
+        this.transformObjectToTarget(opts, body, transformationOpts)
+      );
     } else {
-      transformed = this.transformObjectToTarget(opts, body, transformationOpts);
+      transformed = this.transformObjectToTarget(
+        opts,
+        body,
+        transformationOpts
+      );
     }
     return transformed;
   }
 
-  protected static transformObjectToTarget(opts: ParseBodyOpts, body: unknown, transformationOpts: ClassTransformOptions) {
+  protected static transformObjectToTarget(
+    opts: ParseBodyOpts,
+    body: unknown,
+    transformationOpts: ClassTransformOptions
+  ) {
     if (!opts.type) {
       return body;
     }
