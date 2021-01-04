@@ -70,8 +70,8 @@ export class BodyParser {
     let transformed;
     const transformationOpts = this.buildTransformationOpts(opts);
     if (body instanceof Array) {
-      transformed = body.map(() =>
-        this.transformObjectToTarget(opts, body, transformationOpts)
+      transformed = body.map((item) =>
+        this.transformObjectToTarget(opts, item, transformationOpts)
       );
     } else {
       transformed = this.transformObjectToTarget(
