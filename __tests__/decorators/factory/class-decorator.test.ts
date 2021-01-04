@@ -10,7 +10,7 @@ describe("use DecoratorFactory as ClassDecorator", () => {
   @TestDecorator(testDecoratorOpts)
   class TestClass {
     static staticMethod() {
-      return Promise.resolve()
+      return Promise.resolve();
     }
 
     public async instanceMethod() {
@@ -43,7 +43,7 @@ describe("use DecoratorFactory as ClassDecorator", () => {
     @TestDecorator(firstOpts)
     class DoubleDecorated {
       static method() {
-        return Promise.resolve()
+        return Promise.resolve();
       }
     }
     const metadata = Reflect.getMetadata(

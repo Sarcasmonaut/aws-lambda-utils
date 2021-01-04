@@ -1,8 +1,6 @@
-import {LambdaProxy} from '../../../../src/decorators/lambda-proxy';
-
+import { LambdaProxy } from "../../../../src/decorators/lambda-proxy";
 
 describe("inject cors tests", () => {
-
   const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Credentials": true,
@@ -17,6 +15,6 @@ describe("inject cors tests", () => {
 
   it("should inject cors headers", async () => {
     const res = await TestClass.injectCors({} as any, null);
-    expect(res).toHaveProperty('headers', corsHeaders);
+    expect(res).toHaveProperty("headers", corsHeaders);
   });
 });

@@ -75,7 +75,7 @@ describe("LambdaProxy tests", () => {
   }
 
   it("should apply class decorator to all staticMethods", async () => {
-    const body = { 'key': 'value' }
+    const body = { key: "value" };
     const event = preparePostEvent(body);
     const res = await DecoratedClass.undecoratedMethod(event, {});
     expect(res).toHaveProperty("statusCode", 200);
@@ -117,5 +117,4 @@ describe("LambdaProxy tests", () => {
     expect(res).toHaveProperty("statusCode", 200);
     expect(res).toHaveProperty("body", JSON.stringify(new TestDto()));
   });
-  
 });
