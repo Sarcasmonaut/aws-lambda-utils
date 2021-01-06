@@ -57,8 +57,8 @@ export class ResponseTransformer extends BodyParser {
     body: Record<string, unknown>,
     opts: TransformResultOpts
   ): Record<string, unknown> | null {
-    if (!(opts.type && body)) {
-      return null;
+    if (!opts.type) {
+      return body;
     }
     const cls = super.transformToTarget(body, opts);
     return classToPlain(cls);
