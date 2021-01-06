@@ -26,7 +26,7 @@ export class ResponseTransformer extends BodyParser {
   }
 
   public static jsonify(params: LambdaProxyHookParams): void {
-    const body = params.result?.body || params.result;
+    const body = params.result?.body;
     if (typeof body === "string" || body == null) params.result = { body };
     else params.result = { body: JSON.stringify(body) };
   }
@@ -56,9 +56,9 @@ export class ResponseTransformer extends BodyParser {
   protected static transformToTarget(
     body: Record<string, unknown>,
     opts: TransformResultOpts
-  ): Record<string, unknown> {
-    if (!opts.type) {
-      return body;
+  ): Record<string, unknown> | null {
+    if (!(opts.type && body)) {
+      return null;
     }
     const cls = super.transformToTarget(body, opts);
     return classToPlain(cls);
