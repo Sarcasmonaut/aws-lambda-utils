@@ -1,19 +1,18 @@
 import { LambdaProxy } from "../../../../src";
-import {Expose} from 'class-transformer';
+import { Expose } from "class-transformer";
 
 describe("transform result tests", () => {
-
   class TestDto {
     @Expose()
-    title?: string
+    title?: string;
   }
 
   @LambdaProxy({
-    returns: TestDto
+    returns: TestDto,
   })
   class TestClass {
     public static returnUndefined(_event: any, _context: any): void {
-      return undefined
+      return undefined;
     }
   }
 
