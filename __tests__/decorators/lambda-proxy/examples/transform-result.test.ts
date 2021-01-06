@@ -14,7 +14,7 @@ describe("transform result tests", () => {
   class TestClass {
 
 
-    public static returnUndefined(_event: any, _context: any) {}
+    public static returnUndefined(_event: any, _context: any): void {}
   }
 
   it("should return null if handler returns undefined", async () => {
