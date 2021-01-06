@@ -12,9 +12,9 @@ describe("transform result tests", () => {
     returns: TestDto
   })
   class TestClass {
-
-
-    public static returnUndefined(_event: any, _context: any): void {}
+    public static returnUndefined(_event: any, _context: any): void {
+      return undefined
+    }
   }
 
   it("should return null if handler returns undefined", async () => {
