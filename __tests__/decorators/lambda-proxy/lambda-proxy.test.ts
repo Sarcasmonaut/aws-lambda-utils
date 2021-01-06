@@ -1,5 +1,5 @@
 import { APIGatewayProxyWithCognitoAuthorizerEvent } from "aws-lambda";
-import { LambdaProxy } from "../../../src/decorators/lambda-proxy";
+import { LambdaProxy } from "../../../src";
 import { Expose } from "class-transformer";
 import { IsDefined } from "class-validator";
 
@@ -111,7 +111,7 @@ describe("LambdaProxy tests", () => {
   });
 
   it("should not return statusCode 400 if validate=false", async () => {
-    const failingBody = { not: "matched" };
+    const failingBody = { not: "matched", notExposed: "notExposed" };
     const event = preparePostEvent(failingBody);
     const res = await DecoratedClass.expectTestDtoNoValidate(event, {});
     expect(res).toHaveProperty("statusCode", 200);
