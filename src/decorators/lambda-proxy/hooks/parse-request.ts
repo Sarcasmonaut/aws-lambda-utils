@@ -55,10 +55,10 @@ export class BodyParser {
 
   private static parseJsonString(body: any): Record<string, unknown> {
     try {
-      if (typeof body === 'string') {
+      if (typeof body === "string") {
         return JSON.parse(body);
       } else {
-        return body
+        return body;
       }
     } catch (error) {
       throw new BadRequestError(
