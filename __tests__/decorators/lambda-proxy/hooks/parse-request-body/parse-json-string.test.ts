@@ -1,4 +1,4 @@
-import { BodyParser } from "../../../../../src/decorators/lambda-proxy/hooks/parse-request";
+import { BodyParser } from "../../../../../src/decorators/lambda-proxy/hooks";
 import { BadRequestError } from "../../../../../src/errors";
 
 describe("BodyParser.parseJsonString tests", () => {

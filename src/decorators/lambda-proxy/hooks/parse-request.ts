@@ -113,7 +113,7 @@ export class BodyParser {
         event.httpMethod?.toLowerCase()
       );
       const supportedContentType =
-        event.headers && event.headers["Content-Type"] === "application/json";
+        event.headers && (event.headers["Content-Type"]||event.headers['content-type']) === "application/json";
       const hasBody = !!event.body;
       return hasBody && supportedMethod && supportedContentType;
     } catch (error) {
