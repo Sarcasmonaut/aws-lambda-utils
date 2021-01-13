@@ -55,7 +55,11 @@ export class BodyParser {
 
   private static parseJsonString(body: any): Record<string, unknown> {
     try {
-      return JSON.parse(body);
+      if (typeof body === 'string') {
+        return JSON.parse(body);
+      } else {
+        return body
+      }
     } catch (error) {
       throw new BadRequestError(
         "Malformed Body. Expected stringified json content."

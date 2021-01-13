@@ -9,7 +9,7 @@ describe("ResponseTransformer.jsonify tests", () => {
     ],
     [JSON.stringify({ key: "value" }), { result: { body: { key: "value" } } }],
     [undefined, {}],
-    [null, { result: { body: null }}],
+    [null, { result: { body: null } }],
   ])("should return %p if params = %p", (expected: any, params: any) => {
     ResponseTransformer.jsonify(params);
     expect(params).toHaveProperty("result");

@@ -20,4 +20,10 @@ describe("BodyParser.parseJsonString tests", () => {
     const res = BodyParser.parseJsonString(JSON.stringify(expected));
     expect(res).toEqual(expected);
   });
+  it('should return original if object was provided', function () {
+    const expected = { message: "test"}
+    // @ts-ignore
+    const res = BodyParser.parseJsonString(expected)
+    expect(res).toEqual(expected)
+  });
 });
